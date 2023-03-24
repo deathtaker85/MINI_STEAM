@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_signin_button/flutter_signin_button.dart';
+import 'package:mini_steam/Inscription.dart';
 
 // class connexion extends StatefulWidget {
 //   @override
@@ -175,16 +177,6 @@ class _ConnexionState extends State<Connexion> {
     }
   }
 
-  void _handleSignUp() async {
-    if (_formKey.currentState!.validate()) {
-      // TODO: Implémenter la logique d'inscription
-      final email = _emailController.text.trim();
-      final password = _passwordController.text.trim();
-      print('email: $email');
-      print('password: $password');
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -275,7 +267,7 @@ class _ConnexionState extends State<Connexion> {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.only(top:50,left: 8.0,right: 8.0),
+              padding: const EdgeInsets.only(top: 50, left: 8.0, right: 8.0),
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   minimumSize: Size(180, 40),
@@ -286,8 +278,10 @@ class _ConnexionState extends State<Connexion> {
                   ),
                 ),
                 onPressed: _handleSignIn,
-                child: Text('Se connecter',style: TextStyle(
-                                    color: Colors.white, fontSize: 20),),
+                child: Text(
+                  'Se connecter',
+                  style: TextStyle(color: Colors.white, fontSize: 20),
+                ),
               ),
             ),
             Padding(
@@ -298,13 +292,49 @@ class _ConnexionState extends State<Connexion> {
                   primary: Color.fromARGB(255, 26, 32, 37),
                   onPrimary: Colors.white,
                   shape: RoundedRectangleBorder(
-                    side: BorderSide(color:Color.fromARGB(255, 88, 94, 214) ),
+                    side: BorderSide(color: Color.fromARGB(255, 88, 94, 214)),
                     borderRadius: BorderRadius.circular(10.0),
                   ),
                 ),
-                onPressed: _handleSignUp,
-                child: Text('Créer un compte',style: TextStyle(
-                                    color: Colors.white, fontSize: 20),),
+                onPressed: () => {
+                  Navigator.push(context,
+                      MaterialPageRoute<void>(builder: (BuildContext context) {
+                    return Scaffold(
+                      appBar: AppBar(
+                        title: Text('Inscription'),
+                        backgroundColor: Color.fromARGB(254, 26, 32, 37),
+                      ),
+                      body: Inscription(),
+                      backgroundColor: Color.fromARGB(254, 26, 32, 37),
+                    );
+                  }))
+                },
+                child: Text(
+                  'Créer un compte',
+                  style: TextStyle(color: Colors.white, fontSize: 20),
+                ),
+              ),
+            ),
+            Padding(
+              padding: EdgeInsets.all(8.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                 Column(
+                  children: [
+                     SignInButton(
+                    Buttons.Google,
+                    text: "Sign in with Google",
+                    onPressed: () {},
+                  ),
+                  SignInButton(
+                    Buttons.Facebook,
+                    text: "Sign in with facebook",
+                    onPressed: () {},
+                  )
+                  ],
+                 )
+                ],
               ),
             ),
           ],

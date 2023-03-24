@@ -26,14 +26,14 @@ class HomePage extends StatelessWidget {
       'description':
           'Action role-playing game set in an open world environment, based on the novels of the same name',
       'image':
-          'https://images-na.ssl-images-amazon.com/images/I/91itOaLzE1L._AC_SL1500_.jpg',
+          'https://image.api.playstation.com/vulcan/ap/rnd/202211/0711/kh4MUIuMmHlktOHar3lVl6rY.png',
     },
     {
       'title': 'Red Dead Redemption 2',
       'description':
           'Western action-adventure game set in an open world environment',
       'image':
-          'https://images-na.ssl-images-amazon.com/images/I/81cpcd%2BxjJL._AC_SL1500_.jpg',
+          'https://image.api.playstation.com/gs2-sec/appkgo/prod/CUSA08519_00/12/i_3da1cf7c41dc7652f9b639e1680d96436773658668c7dc3930c441291095713b/i/icon0.png',
     },
   ];
 
@@ -110,7 +110,7 @@ class GameCard extends StatelessWidget {
                       Container(
                         width: 200,
                         height: 60,
-                        child: Text('Titan Fall 2 Ultimate Edition',
+                        child: Text(title,
                             textAlign: TextAlign.left,
                             style: TextStyle(
                               color: Colors.white,
@@ -124,8 +124,7 @@ class GameCard extends StatelessWidget {
                         ),
                         child: Container(
                           height: 75,
-                          child: Text(
-                              'Third person shooter in future and post apocatyliptic game, cyberpunk and robots',
+                          child: Text(description,
                               softWrap: true,
                               style: TextStyle(
                                 color: Colors.white,
@@ -164,7 +163,7 @@ class GameCard extends StatelessWidget {
                       Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: Image.network(
-                          'https://m.media-amazon.com/images/I/816IMYzvv8L._AC_SX385_.jpg',
+                          image,
                           width: 150,
                         ),
                       ),
@@ -429,12 +428,10 @@ class _MyAppState extends State<MApp> {
               decoration: InputDecoration(
                 hintText: 'Search...',
               ),
-              onChanged: (value) {
-                setState(() {
-                  _searchQuery = value.toLowerCase();
-                });
-              },
               onSubmitted: (value) {
+                setState(() {
+                  _searchQuery = value;
+                });
                 List<dynamic> object = [];
                 for (var i = 0; i < games.length; i++) {
                   if (games[i]['name'].contains(value)) {
@@ -468,6 +465,17 @@ class _MyAppState extends State<MApp> {
               },
             ),
             HomePage(),
+            Padding(
+              padding: const EdgeInsets.only(top: 25, bottom: 10, left: 10),
+              child: Row(
+                children: [
+                  Text(
+                    'les plus populaires',
+                    style: TextStyle(fontSize: 20, color: Colors.white),
+                  )
+                ],
+              ),
+            ),
             // Container(
             //   decoration: BoxDecoration(
             //     image: DecorationImage(
@@ -623,8 +631,22 @@ class _MyAppState extends State<MApp> {
             icon: Icon(Icons.vignette)),
         BottomNavigationBarItem(
             backgroundColor: Color.fromARGB(255, 30, 38, 44),
-            label: 'acceuil',
-            icon: IconButton(onPressed: null, icon: Icon(Icons.vignette))),
+            label: 'Compte',
+            icon: IconButton(
+                onPressed: () => {
+                      Navigator.push(context, MaterialPageRoute<void>(
+                          builder: (BuildContext context) {
+                        return Scaffold(
+                          appBar: AppBar(
+                            title: Text('Connexion'),
+                            backgroundColor: Color.fromARGB(254, 26, 32, 37),
+                          ),
+                          body: Connexion(),
+                          backgroundColor: Color.fromARGB(254, 26, 32, 37),
+                        );
+                      }))
+                    },
+                icon: Icon(color: Colors.white, Icons.person))),
         BottomNavigationBarItem(
             backgroundColor: Color.fromARGB(255, 30, 38, 44),
             label: 'favoris',
@@ -735,7 +757,7 @@ Widget Item(String id,
                                       ),
                                       IconButton(
                                         onPressed: () {
-                                          bool test = false;
+                                          bool test = true;
                                           for (var i = 0;
                                               i < globalList.length;
                                               i++) {

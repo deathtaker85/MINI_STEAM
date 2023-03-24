@@ -28,6 +28,7 @@ environment:
 # the latest version available on pub.dev. To see which dependencies have newer
 # versions available, run `flutter pub outdated`.
 dependencies:
+  flutter_signin_button: ^2.0.0
   uuid: ^3.0.5
   carousel_slider: ^4.2.1
   dio: ^5.0.1
