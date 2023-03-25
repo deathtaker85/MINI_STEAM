@@ -1,11 +1,11 @@
 import 'dart:convert';
-// import 'dart:js';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:mini_steam/Connexion.dart';
 import 'package:mini_steam/test2.dart';
 import 'package:uuid/uuid.dart';
-
 import 'global.dart';
 import 'likes_video.dart';
 
@@ -171,137 +171,11 @@ class GameCard extends StatelessWidget {
                   )),
             ],
           ),
-          // Row(
-          //   children: [
-          //     Container(
-          //       width: MediaQuery.of(context).size.width * 0.6,
-          //       child: Padding(
-          //         padding: EdgeInsets.only(
-          //           top: 60,
-          //           left: 15,
-          //         ),
-          //         child: Column(
-          //           crossAxisAlignment: CrossAxisAlignment.start,
-          //           children: [
-          //             Container(
-          //               width: 200,
-          //               height: 60,
-          //               child: Text(title,
-          //                   textAlign: TextAlign.left,
-          //                   style: TextStyle(
-          //                     color: Colors.white,
-          //                     fontSize: 25,
-          //                   )),
-          //             ),
-          //             Padding(
-          //               padding: const EdgeInsets.only(
-          //                 top: 8.0,
-          //                 bottom: 8.0,
-          //               ),
-          //               child: Container(
-          //                 height: 75,
-          //                 child: Text(description,textAlign: TextAlign.left,
-          //                 style: TextStyle(
-          //                   color: Colors.white,
-          //                   fontSize: 15,
-          //                 ),
-          //                 maxLines: 3,
-          //                 overflow: TextOverflow.ellipsis,
-          //               ),
-          //             ),)
-          //           ],
-          //         ),
-          //       ),
-          //     ),
-          //     Expanded(
-          //       child: Container(),
-          //     ),
-          //     Padding(
-          //       padding: EdgeInsets.only(right: 15, bottom: 15),
-          //       child: ElevatedButton(
-          //         onPressed: () {},
-          //         child: Text(
-          //           'Acheter',
-          //           style: TextStyle(fontSize: 16),
-          //         ),
-          //         style: ElevatedButton.styleFrom(
-          //           primary: Colors.green,
-          //           shape: RoundedRectangleBorder(
-          //             borderRadius: BorderRadius.circular(18.0),
-          //             side: BorderSide(color: Colors.green),
-          //           ),
-          //         ),
-          //       ),
-          //     ),
-          //   ],
-          // ),
         ],
       ),
     );
   }
 }
-
-// *************************************************************//
-// class Favorites {
-//   List<item> items = [];
-
-//   void toggleFavorite(item item) {
-//     if (items.contains(item)) {
-//       items.remove(item);
-//     } else {
-//       items.add(item);
-//     }
-//   }
-// }
-
-// ****************************************************************//
-
-// class icon_button extends StatefulWidget {
-//   dynamic icon_true;
-//   dynamic icon_false;
-//   Widget MYitem = Column();
-
-//   icon_button(arg1, arg2) {
-//     icon_true = arg1;
-//     icon_false = arg2;
-//   }
-
-//   _icon_button createState() => _icon_button();
-// }
-
-// class _icon_button extends State<icon_button> {
-//   dynamic icon_true;
-//   dynamic icon_false;
-//   Widget MYitem = Column();
-
-//   _icon_button() {
-//     icon_true = first;
-//     icon_false = second;
-//     MYitem = item;
-//   }
-
-//   bool _onpressed = true;
-
-//   void onpressed() {
-//     setState(() {
-//       if (_onpressed) {
-//         _onpressed = false;
-//       } else {
-//         globalList.add(MYitem);
-//         _onpressed = true;
-//       }
-//     });
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return IconButton(
-//       color: Color.fromARGB(255, 227, 104, 22),
-//       icon: Icon(_onpressed ? icon_true : icon_false),
-//       onPressed: onpressed,
-//     );
-//   }
-// }
 
 // *********************************************************************//
 class search extends StatefulWidget {
@@ -346,11 +220,25 @@ class _MyAppState extends State<MApp> {
   final Map<int, String> _gameDescriptionCache = {};
   TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
+  var currentUser = FirebaseAuth.instance.currentUser;
+  List Favorite = [];
+
+  void getInfoUser() async {
+    final userDocRef =
+        FirebaseFirestore.instance.collection('Users').doc(currentUser?.uid);
+    DocumentSnapshot<Map<String, dynamic>> test = await userDocRef.get();
+    setState(() {
+      for (var i = 0; test['Favorite'].length > i; i++) {
+        Favorite.add(test['Favorite'][i]);
+      }
+    });
+  }
 
   @override
   void initState() {
     super.initState();
     fetchGames();
+    getInfoUser();
   }
 
   Future<void> fetchGames() async {
@@ -411,6 +299,16 @@ class _MyAppState extends State<MApp> {
     return Scaffold(
       backgroundColor: Color.fromARGB(255, 25, 31, 36),
       appBar: AppBar(
+        actions: [
+          Text('randry'),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Image.network(
+              'https://cdn.discordapp.com/attachments/841000000000000000/841000000000000000/unknown.png',
+              width: 40,
+            ),
+          ),
+        ],
         backgroundColor: Color.fromARGB(255, 26, 32, 37),
         title: Text(
           'Acceuil',
@@ -476,106 +374,6 @@ class _MyAppState extends State<MApp> {
                 ],
               ),
             ),
-            // Container(
-            //   decoration: BoxDecoration(
-            //     image: DecorationImage(
-            //       image: NetworkImage(
-            //           'https://image.api.playstation.com/cdn/EP0006/CUSA04013_00/4bI5D3WvesQPmegKpGINAimOsS27D688.png'),
-            //       fit: BoxFit.cover,
-            //     ),
-            //   ),
-            //   child: Stack(
-            //     children: [
-            //       Container(
-            //         decoration: BoxDecoration(
-            //           color: Color.fromARGB(159, 0, 0, 0),
-            //         ),
-            //         width: MediaQuery.of(context).size.width,
-            //         clipBehavior: Clip.hardEdge,
-            //       ),
-            //       Row(
-            //         children: [
-            //           Container(
-            //             width: MediaQuery.of(context).size.width * 0.6,
-            //             child: Padding(
-            //               padding: EdgeInsets.only(
-            //                 top: 60,
-            //                 left: 15,
-            //               ),
-            //               child: Column(
-            //                 crossAxisAlignment: CrossAxisAlignment.start,
-            //                 children: [
-            //                   Container(
-            //                     width: 200,
-            //                     height: 60,
-            //                     child: Text('Titan Fall 2 Ultimate Edition',
-            //                         textAlign: TextAlign.left,
-            //                         style: TextStyle(
-            //                           color: Colors.white,
-            //                           fontSize: 25,
-            //                         )),
-            //                   ),
-            //                   Padding(
-            //                     padding: const EdgeInsets.only(
-            //                       top: 8.0,
-            //                       bottom: 8.0,
-            //                     ),
-            //                     child: Container(
-            //                       height: 75,
-            //                       child: Text(
-            //                           'Third person shooter in future and post apocatyliptic game, cyberpunk and robots',
-            //                           softWrap: true,
-            //                           style: TextStyle(
-            //                             color: Colors.white,
-            //                             fontSize: 15,
-            //                           )),
-            //                     ),
-            //                   ),
-            //                   Padding(
-            //                     padding: const EdgeInsets.only(
-            //                       bottom: 8.0,
-            //                     ),
-            //                     child: ElevatedButton(
-            //                         style: ButtonStyle(
-            //                           minimumSize:
-            //                               MaterialStateProperty.all<Size>(
-            //                                   Size(200, 45)),
-            //                           backgroundColor:
-            //                               MaterialStateProperty.all<Color>(
-            //                                   Color.fromARGB(255, 88, 94, 214)),
-            //                         ),
-            //                         onPressed: null,
-            //                         child: Text('En savoir plus',
-            //                             style: TextStyle(
-            //                               color: Colors.white,
-            //                               fontSize: 18,
-            //                             ))),
-            //                   )
-            //                 ],
-            //               ),
-            //             ),
-            //           ),
-            //           Container(
-            //               width: MediaQuery.of(context).size.width * 0.4,
-            //               child: Column(
-            //                 mainAxisAlignment: MainAxisAlignment.end,
-            //                 crossAxisAlignment: CrossAxisAlignment.center,
-            //                 children: [
-            //                   Padding(
-            //                     padding: const EdgeInsets.all(8.0),
-            //                     child: Image.network(
-            //                       'https://m.media-amazon.com/images/I/816IMYzvv8L._AC_SX385_.jpg',
-            //                       width: 150,
-            //                     ),
-            //                   ),
-            //                 ],
-            //               )),
-            //         ],
-            //       ),
-            //     ],
-            //   ),
-            //   height: 270,
-            // ),
             ListView.builder(
               physics: NeverScrollableScrollPhysics(),
               shrinkWrap: true,
@@ -659,14 +457,7 @@ class _MyAppState extends State<MApp> {
                       title: Text('Mes likes'),
                       backgroundColor: Color.fromARGB(254, 26, 32, 37),
                     ),
-                    body: ListView.builder(
-                        itemCount: globalList.length,
-                        shrinkWrap: true,
-                        itemBuilder: (BuildContext context, int index) {
-                          return Column(
-                            children: [globalList[index].Item],
-                          );
-                        }),
+                    body: favoris(),
                     backgroundColor: Color.fromARGB(254, 26, 32, 37),
                   );
                 }))
@@ -693,6 +484,7 @@ class item {
 
 Widget Item(String id,
     {dimension: '', name: '', description: '', prix: '', url: ''}) {
+  var currentUser = FirebaseAuth.instance.currentUser;
   return Padding(
     padding: const EdgeInsets.all(7.5),
     child: Container(
@@ -757,6 +549,22 @@ Widget Item(String id,
                                       ),
                                       IconButton(
                                         onPressed: () {
+                                          final docRef = FirebaseFirestore
+                                              .instance
+                                              .collection('Users')
+                                              .doc(currentUser?.uid);
+                                          print(currentUser?.uid);
+                                          final newElement = {
+                                            'name': name,
+                                            'price': description,
+                                            'description': prix,
+                                            'image': url,
+                                          };
+
+                                          docRef.update({
+                                            'Favorite': FieldValue.arrayUnion(
+                                                [newElement])
+                                          });
                                           bool test = true;
                                           for (var i = 0;
                                               i < globalList.length;

@@ -7,14 +7,14 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:864266980468:android:81be05042c3e8e84c2d521",
+        "mobilesdk_app_id": "1:864266980468:android:6b12f46ad5e6f4ecc2d521",
         "android_client_info": {
           "package_name": "com.example.mini_steam"
         }
       },
       "oauth_client": [
         {
-          "client_id": "864266980468-3e3j2a3ca7tk15l6rnil5qhh9rv6i3uk.apps.googleusercontent.com",
+          "client_id": "864266980468-cifdcsrvovlpbacngj00q7j9uau2cu07.apps.googleusercontent.com",
           "client_type": 3
         }
       ],

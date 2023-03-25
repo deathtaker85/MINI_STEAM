@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_signin_button/flutter_signin_button.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:mini_steam/Connexion.dart';
 
 class Inscription extends StatefulWidget {
   @override
@@ -7,6 +9,7 @@ class Inscription extends StatefulWidget {
 }
 
 class _Inscription extends State<Inscription> {
+  List listUserData = [];
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
@@ -22,16 +25,88 @@ class _Inscription extends State<Inscription> {
     super.dispose();
   }
 
+  void getDataUser() {
+    FirebaseFirestore.instance
+        .collection('Users')
+        .get()
+        .then((QuerySnapshot querySnapshot) {
+      querySnapshot.docs.forEach((doc) {
+        print(doc["email"]);
+        setState(() {
+          listUserData
+              .add({'Email': doc["email"], 'Username': doc["username"]});
+        });
+        print(listUserData);
+      });
+    });
+  }
+
   void _handleSignIn() async {
-    if (_formKey.currentState!.validate()) {
-      // TODO: Implémenter la logique de connexion
-      final email = _emailController.text.trim();
-      final password = _passwordController.text.trim();
-      final username = _usernameController.text.trim();
-      print('username: $username');
-      print('email: $email');
-      print('password: $password');
+    final email = _emailController.value.text;
+    final password = _passwordController.value.text;
+    final username = _usernameController.value.text;
+    bool emailExists = false;
+    bool usernameExists = false;
+
+    for (var i = 0; i < listUserData.length; i++) {
+      if (email == listUserData[i]['Email']) {
+        emailExists = true;
+      }
+      if (username == listUserData[i]['Username']) {
+        usernameExists = true;
+      }
     }
+
+    if (_formKey.currentState!.validate() && !emailExists && !usernameExists) {
+      
+      UserCredential userCredential = await FirebaseAuth.instance
+          .createUserWithEmailAndPassword(email: email, password: password);
+
+      DocumentReference<Map<String, dynamic>> users =
+          FirebaseFirestore.instance.collection('Users').doc(userCredential.user!.uid.toString());
+      users.set({
+        'username': username,
+        'email': email,
+        'password': password,
+        'Favorite': [
+          {
+            'name': '',
+            'publisher': '',
+            'price': '',
+            'image':
+                'https://media.licdn.com/dms/image/D4E03AQH4l-DMUL7lEw/profile-displayphoto-shrink_400_400/0/1666952859336?e=1684972800&v=beta&t=w6te11xGikntWDIeC0Ugca8bcTEL2C-4WFh6h2fIG9o'
+          }
+        ]
+      });
+      
+      Navigator.push(context, MaterialPageRoute(builder: (context) {
+        return Connexion();
+      }));
+    } else {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('Désoler'),
+            content:
+                Text('L\'adresse e-mail ou le nom d\'utilisateur existe déjà.'),
+            actions: <Widget>[
+              TextButton(
+                child: Text('OK'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        },
+      );
+    }
+  }
+
+  void initState() {
+    super.initState();
+    getDataUser();
   }
 
   @override
@@ -110,7 +185,9 @@ class _Inscription extends State<Inscription> {
                 validator: (value) {
                   if (value!.isEmpty) {
                     return 'Veuillez entrer votre adresse e-mail.';
-                  }if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
+                  }
+                  if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
+                      .hasMatch(value)) {
                     return 'Veuillez entrer une adresse e-mail valide.';
                   }
                   return null;
@@ -187,28 +264,6 @@ class _Inscription extends State<Inscription> {
                   "S'inscrire",
                   style: TextStyle(color: Colors.white, fontSize: 20),
                 ),
-              ),
-            ),
-            Padding(
-              padding: EdgeInsets.all(8.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                 Column(
-                  children: [
-                     SignInButton(
-                    Buttons.Google,
-                    text: "Sign up with Google",
-                    onPressed: () {},
-                  ),
-                  SignInButton(
-                    Buttons.Facebook,
-                    text: "Sign up with facebook",
-                    onPressed: () {},
-                  )
-                  ],
-                 )
-                ],
               ),
             ),
           ],

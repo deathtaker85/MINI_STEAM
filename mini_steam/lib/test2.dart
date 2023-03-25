@@ -111,54 +111,6 @@ class _test2 extends State<test2> {
     }
 
     return Column(children: widgets);
-    // return Expanded(
-    //   child: ListView.builder(
-    //     itemCount: community.length,
-    //     itemBuilder: (BuildContext context, int index) {
-    //       return Text('hello');
-    //     return Container(
-    //   decoration: BoxDecoration(
-    //       color: Color.fromARGB(255, 30, 38, 44),
-    //       borderRadius: BorderRadius.circular(5.0)),
-    //   child: Column(
-    //     children: [
-    //       Padding(
-    //         padding: const EdgeInsets.all(20.0),
-    //         child: Row(
-    //           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-    //           children: [
-    //             Text(
-    //               community[index].name,
-    //               style: TextStyle(color: Colors.white, fontSize: 20),
-    //             ),
-    //             Row(
-    //               children: [
-    //                 Icon(
-    //                   Icons.star,
-    //                   color: Colors.amber,
-    //                 ),
-    //                 Icon(Icons.star, color: Colors.amber),
-    //                 Icon(Icons.star, color: Colors.amber),
-    //                 Icon(Icons.star, color: Colors.amber),
-    //                 Icon(Icons.star, color: Colors.amber),
-    //               ],
-    //             ),
-    //           ],
-    //         ),
-    //       ),
-    //       Padding(
-    //         padding: const EdgeInsets.all(20.0),
-    //         child: Text(
-    //           avis[0]['review'],
-    //           style: TextStyle(color: Colors.white, fontSize: 12),
-    //         ),
-    //       ),
-    //     ],
-    //   ),
-    // );
-    //       },
-    //     ),
-    //   );
   }
 
   void onPressedRight() {
@@ -209,22 +161,6 @@ class _test2 extends State<test2> {
       throw Exception('Failed to load games');
     }
   }
-
-  // Future<void> Get_avis_game() async {
-  //   // String appid = widget.appID;
-  //   final response = await http.get(
-  //     Uri.parse(
-  //         'https://store.steampowered.com/appreviews/349040?json=1&language=all&filter=recent_positive'),
-  //   );
-
-  //   if (response.statusCode == 200) {
-  //     final json = jsonDecode(response.body);
-  //     final data = json['reviews'];
-  //     setState(() {
-  //       avis = data;
-  //     });
-  //   }
-  // }
 
   Future<void> fetchData() async {
     String appid = widget.appID;
@@ -453,47 +389,3 @@ class _test2 extends State<test2> {
     );
   }
 }
-
-
-
-
-// Container(
-//       decoration: BoxDecoration(
-//           color: Color.fromARGB(255, 30, 38, 44),
-//           borderRadius: BorderRadius.circular(5.0)),
-//       child: Column(
-//         children: [
-//           Padding(
-//             padding: const EdgeInsets.all(20.0),
-//             child: Row(
-//               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//               children: [
-//                 Text(
-//                   'randry',
-//                   style: TextStyle(color: Colors.white, fontSize: 20),
-//                 ),
-//                 Row(
-//                   children: [
-//                     Icon(
-//                       Icons.star,
-//                       color: Colors.amber,
-//                     ),
-//                     Icon(Icons.star, color: Colors.amber),
-//                     Icon(Icons.star, color: Colors.amber),
-//                     Icon(Icons.star, color: Colors.amber),
-//                     Icon(Icons.star, color: Colors.amber),
-//                   ],
-//                 ),
-//               ],
-//             ),
-//           ),
-//           Padding(
-//             padding: const EdgeInsets.all(20.0),
-//             child: Text(
-//               avis[0]['review'],
-//               style: TextStyle(color: Colors.white, fontSize: 20),
-//             ),
-//           ),
-//         ],
-//       ),
-//     );

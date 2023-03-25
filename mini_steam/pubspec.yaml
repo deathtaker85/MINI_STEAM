@@ -28,14 +28,22 @@ environment:
 # the latest version available on pub.dev. To see which dependencies have newer
 # versions available, run `flutter pub outdated`.
 dependencies:
+  shared_preferences: ^2.0.20
+# on a ajouter le firebase core et le cloud firestore pour acceder aux services de firebase
+  firebase_core: ^2.8.0
+  cloud_firestore: ^4.4.5
+  # le flutter sign in button pour les boutons de connexion
   flutter_signin_button: ^2.0.0
+  # le uuid pour les id uniques
   uuid: ^3.0.5
+  # le carousel slider pour les carousels
   carousel_slider: ^4.2.1
   dio: ^5.0.1
+  # le flutter html pour le html
   flutter_html: ^2.1.5
   http: ^0.13.4
   http_parser: ^4.0.0
-  flutter_svg: ^0.22.0
+  flutter_svg: ^0.23.0+1
   flutter:
     sdk: flutter
 
@@ -43,6 +51,8 @@ dependencies:
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
+  firebase_auth: ^4.3.0
+  
 
 dev_dependencies:
   flutter_test:

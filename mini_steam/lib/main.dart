@@ -1,15 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:mini_steam/Acceuil.dart';
 import 'package:mini_steam/likes_video.dart';
 import 'package:mini_steam/Connexion.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/rendering.dart';
 import 'package:mini_steam/test.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:flutter/foundation.dart';
 
-void main() {
+Future<void> main() async{
   debugPaintSizeEnabled = false;
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
   runApp(MyApp());
 }
 
@@ -25,6 +28,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       home:MApp(),
     );
   }

@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:mini_steam/global.dart';
+import 'package:mini_steam/test.dart';
+import 'package:uuid/uuid.dart';
 
 Column EmptyList() {
   return Column(
@@ -41,4 +45,55 @@ Column EmptyList() {
       ),
     ],
   );
+}
+
+class favoris extends StatefulWidget {
+  @override
+  _favorisState createState() => _favorisState();
+}
+
+class _favorisState extends State<favoris> {
+  List Favorite = [];
+  var currentUser = FirebaseAuth.instance.currentUser;
+  
+  void getInfoUser() async {
+    final userDocRef =
+        FirebaseFirestore.instance.collection('Users').doc(currentUser?.uid);
+    DocumentSnapshot<Map<String, dynamic>> test = await userDocRef.get();
+    setState(() {
+      for (var i = 0; test['Favorite'].length > i; i++) {
+        Favorite.add(test['Favorite'][i]);
+      }
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    getInfoUser();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: ListView.builder(
+              itemCount: Favorite.length,
+              shrinkWrap: true,
+              itemBuilder: (BuildContext context, int index) {
+                return Column(
+                  children: [
+                    item(Item: Item(
+                     '2',
+                      description: Favorite[index]['description'],
+                      url: Favorite[index]['image'],
+                      name: Favorite[index]['name'],
+                      dimension: MediaQuery.of(context).size.width,
+                      prix: Favorite[index]['price'],
+                    ), id: 2).Item
+                  ],
+                );
+              }),
+      backgroundColor: Color.fromARGB(254, 26, 32, 37),
+    );
+  }
 }

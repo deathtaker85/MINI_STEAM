@@ -1,154 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_signin_button/flutter_signin_button.dart';
 import 'package:mini_steam/Inscription.dart';
-
-// class connexion extends StatefulWidget {
-//   @override
-//   _Connexion createState() => _Connexion();
-// }
-
-// class _Connexion extends State<connexion> {
-//   final input_mail = TextEditingController();
-//   final input_password = TextEditingController();
-
-//   @override
-//   void dispose() {
-//     input_mail.dispose();
-//     input_password.dispose();
-//     super.dispose();
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       backgroundColor: Color.fromARGB(255, 26, 32, 37),
-//       body: Form(
-//           child: ListView(
-//         children: [
-//           Container(
-//             child: Column(
-//               children: [
-//                 Padding(
-//                   padding: const EdgeInsets.only(top: 50.0, bottom: 8.0),
-//                   child: Text(
-//                     'Bienvenue !',
-//                     style: TextStyle(
-//                       color: Colors.white,
-//                       fontSize: 40,
-//                     ),
-//                   ),
-//                 ),
-//                 Container(
-//                   padding: const EdgeInsets.all(8.0),
-//                   child: Text(
-//                       "Veuiller vous connecter ou créer un nouveau compte pour utiliser l'application.",
-//                       style: TextStyle(
-//                         color: Colors.white,
-//                         fontSize: 18,
-//                       )),
-//                   width: 230,
-//                 )
-//               ],
-//             ),
-//           ),
-//           Padding(
-//             padding: const EdgeInsets.all(8.0),
-//             child: TextFormField(
-//                 style: TextStyle(color: Colors.white),
-//                 textAlign: TextAlign.left,
-//                 controller: input_mail,
-//                 decoration: InputDecoration(
-//                     hintText: 'entrez votre adresse email',
-//                     filled: true,
-//                     fillColor: Color.fromARGB(255, 30, 38, 44),
-//                     labelText: 'E-mail',
-//                     border: OutlineInputBorder(
-//                         borderRadius: BorderRadius.all(Radius.circular(10.0)))),
-//                 validator: (value) {
-//                   if (value!.isEmpty) {
-//                     return 'veuillez entrer votre adresse mail SVP !!!';
-//                   }
-//                   return null;
-//                 }),
-//           ),
-//           Padding(
-//             padding: const EdgeInsets.all(8.0),
-//             child: TextFormField(
-//                 style: TextStyle(color: Colors.white),
-//                 textAlign: TextAlign.left,
-//                 controller: input_password,
-//                 decoration: InputDecoration(
-//                     hintText: 'entrez votre mot de passe',
-//                     filled: true,
-//                     fillColor: Color.fromARGB(255, 30, 38, 44),
-//                     labelText: 'Mot de passe',
-//                     border: OutlineInputBorder(
-//                         borderRadius: BorderRadius.all(Radius.circular(10.0)))),
-//                 validator: (value) {
-//                   if (value!.isEmpty) {
-//                     return 'veuillez entrer votre mot de passe !!!';
-//                   }
-//                   return null;
-//                 }),
-//           ),
-//           Padding(
-//             padding: const EdgeInsets.only(top: 50.0),
-//             child: Column(
-//               children: [
-//                 Padding(
-//                   padding: const EdgeInsets.all(10.0),
-//                   child: ElevatedButton(
-//                     onPressed: null,
-//                     child: Text(
-//                       'Se connecter',
-//                       style: TextStyle(color: Colors.white, fontSize: 20),
-//                     ),
-//                     style: ButtonStyle(
-//                       minimumSize: MaterialStateProperty.all<Size>(
-//                           Size(MediaQuery.of(context).size.width, 50)),
-//                       shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-//                         RoundedRectangleBorder(
-//                           borderRadius: BorderRadius.circular(5),
-//                           side: BorderSide(
-//                               color: Color.fromARGB(255, 88, 94, 214),
-//                               width: 2.0),
-//                         ),
-//                       ),
-//                       backgroundColor: MaterialStateProperty.all<Color>(
-//                           Color.fromARGB(255, 88, 94, 214)),
-//                     ),
-//                   ),
-//                 ),
-//                 Padding(
-//                   padding: const EdgeInsets.all(10.0),
-//                   child: ElevatedButton(
-//                       onPressed: null,
-//                       child: Text(
-//                         'Créer un nouveau compte',
-//                         style: TextStyle(color: Colors.white, fontSize: 20),
-//                       ),
-//                       style: ButtonStyle(
-//                         minimumSize: MaterialStateProperty.all<Size>(
-//                             Size(MediaQuery.of(context).size.width, 50)),
-//                         shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-//                           RoundedRectangleBorder(
-//                             borderRadius: BorderRadius.circular(5),
-//                             side: BorderSide(
-//                                 color: Color.fromARGB(255, 88, 94, 214),
-//                                 width: 2.0),
-//                           ),
-//                         ),
-//                       ),
-//                     ),
-//                 ),
-//               ],
-//             ),
-//           )
-//         ],
-//       )),
-//     );
-//   }
-// }
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:mini_steam/test.dart';
 
 class Connexion extends StatefulWidget {
   @override
@@ -156,6 +10,7 @@ class Connexion extends StatefulWidget {
 }
 
 class _ConnexionState extends State<Connexion> {
+  FirebaseAuth auth = FirebaseAuth.instance;
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
@@ -168,12 +23,34 @@ class _ConnexionState extends State<Connexion> {
   }
 
   void _handleSignIn() async {
-    if (_formKey.currentState!.validate()) {
-      // TODO: Implémenter la logique de connexion
-      final email = _emailController.text.trim();
-      final password = _passwordController.text.trim();
-      print('email: $email');
-      print('password: $password');
+    final email = _emailController.value.text;
+    final password = _passwordController.value.text;
+    try {
+      UserCredential userCredential = await auth.signInWithEmailAndPassword(
+          email: email, password: password);
+      User? user = userCredential.user;
+      if (user != null) {
+        // Stockez les informations utilisateur dans une session
+        // Par exemple, vous pouvez utiliser la bibliothèque shared_preferences pour stocker les informations utilisateur
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        prefs.setString('userId', user.uid);
+        prefs.setString('userEmail', user.email!);
+
+        // Vous pouvez également naviguer vers une autre page dans votre application pour indiquer que l'utilisateur est connecté
+        Navigator.push(context, MaterialPageRoute(builder: (context) {
+          return MApp();
+        }));
+      }
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'user-not-found') {
+        print('No user found for that email.');
+      } else if (e.code == 'wrong-password') {
+        print('Wrong password provided for that user.');
+      } else {
+        print('Error: ${e.code}');
+      }
+    } catch (e) {
+      print('Error: $e');
     }
   }
 
@@ -313,28 +190,6 @@ class _ConnexionState extends State<Connexion> {
                   'Créer un compte',
                   style: TextStyle(color: Colors.white, fontSize: 20),
                 ),
-              ),
-            ),
-            Padding(
-              padding: EdgeInsets.all(8.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                 Column(
-                  children: [
-                     SignInButton(
-                    Buttons.Google,
-                    text: "Sign in with Google",
-                    onPressed: () {},
-                  ),
-                  SignInButton(
-                    Buttons.Facebook,
-                    text: "Sign in with facebook",
-                    onPressed: () {},
-                  )
-                  ],
-                 )
-                ],
               ),
             ),
           ],
