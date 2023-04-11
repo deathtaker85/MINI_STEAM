@@ -37,9 +37,7 @@ class _ConnexionState extends State<Connexion> {
         prefs.setString('userEmail', user.email!);
 
         // Vous pouvez également naviguer vers une autre page dans votre application pour indiquer que l'utilisateur est connecté
-        Navigator.push(context, MaterialPageRoute(builder: (context) {
-          return MApp();
-        }));
+        Navigator.pushNamed(context, '/Acceuil');
       }
     } on FirebaseAuthException catch (e) {
       if (e.code == 'user-not-found') {
@@ -58,6 +56,10 @@ class _ConnexionState extends State<Connexion> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Color.fromARGB(255, 26, 32, 37),
+      appBar: AppBar(
+        title: Text('Connexion'),
+        backgroundColor: Color.fromARGB(254, 26, 32, 37),
+      ),
       body: Form(
         key: _formKey,
         child: ListView(
@@ -174,17 +176,7 @@ class _ConnexionState extends State<Connexion> {
                   ),
                 ),
                 onPressed: () => {
-                  Navigator.push(context,
-                      MaterialPageRoute<void>(builder: (BuildContext context) {
-                    return Scaffold(
-                      appBar: AppBar(
-                        title: Text('Inscription'),
-                        backgroundColor: Color.fromARGB(254, 26, 32, 37),
-                      ),
-                      body: Inscription(),
-                      backgroundColor: Color.fromARGB(254, 26, 32, 37),
-                    );
-                  }))
+                  Navigator.pushNamed(context, '/Inscription')
                 },
                 child: Text(
                   'Créer un compte',

@@ -29,6 +29,7 @@ environment:
 # versions available, run `flutter pub outdated`.
 dependencies:
   shared_preferences: ^2.0.20
+  image_picker: ^0.8.4+4
 # on a ajouter le firebase core et le cloud firestore pour acceder aux services de firebase
   firebase_core: ^2.8.0
   cloud_firestore: ^4.4.5

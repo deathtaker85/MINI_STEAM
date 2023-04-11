@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:mini_steam/Inscription.dart';
+import 'package:mini_steam/Paramettres.dart';
 import 'package:mini_steam/likes_video.dart';
 import 'package:mini_steam/Connexion.dart';
 import 'package:http/http.dart' as http;
@@ -29,6 +31,13 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
+      routes: {
+        '/connexion': (context) => Connexion(),
+        '/Inscription': (context) => Inscription(),
+        '/likes_video': (context) => favoris(),
+        '/Acceuil': (context) => MApp(),
+        '/parametre':(context) => paramettres(),
+      },
       home:MApp(),
     );
   }

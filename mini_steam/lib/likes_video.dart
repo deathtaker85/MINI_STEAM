@@ -55,7 +55,7 @@ class favoris extends StatefulWidget {
 class _favorisState extends State<favoris> {
   List Favorite = [];
   var currentUser = FirebaseAuth.instance.currentUser;
-  
+
   void getInfoUser() async {
     final userDocRef =
         FirebaseFirestore.instance.collection('Users').doc(currentUser?.uid);
@@ -76,20 +76,29 @@ class _favorisState extends State<favoris> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: ListView.builder(
+      appBar: AppBar(
+        title: Text('Mes likes'),
+        backgroundColor: Color.fromARGB(254, 26, 32, 37),
+      ),
+      body: Favorite.isEmpty
+          ? EmptyList()
+          : ListView.builder(
               itemCount: Favorite.length,
               shrinkWrap: true,
               itemBuilder: (BuildContext context, int index) {
                 return Column(
                   children: [
-                    item(Item: Item(
-                     '2',
-                      description: Favorite[index]['description'],
-                      url: Favorite[index]['image'],
-                      name: Favorite[index]['name'],
-                      dimension: MediaQuery.of(context).size.width,
-                      prix: Favorite[index]['price'],
-                    ), id: 2).Item
+                    item(
+                            Item: Item(
+                              context,'none information',
+                              description: Favorite[index]['description'],
+                              url: Favorite[index]['image'],
+                              name: Favorite[index]['name'],
+                              dimension: MediaQuery.of(context).size.width,
+                              prix: Favorite[index]['price'],
+                            ),
+                            id: 2)
+                        .Item
                   ],
                 );
               }),

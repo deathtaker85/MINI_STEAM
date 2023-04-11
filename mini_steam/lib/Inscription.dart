@@ -113,6 +113,10 @@ class _Inscription extends State<Inscription> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Color.fromARGB(255, 26, 32, 37),
+      appBar: AppBar(
+        title: Text('Inscription'),
+        backgroundColor: Color.fromARGB(254, 26, 32, 37),
+      ),
       body: Form(
         key: _formKey,
         child: ListView(

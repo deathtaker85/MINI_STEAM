@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-
+import 'package:flutter_html/flutter_html.dart';
 import 'package:mini_steam/test.dart';
+import 'package:video_player/video_player.dart';
+import 'package:chewie/chewie.dart';
 
 class User {
   String name = '';
@@ -32,6 +34,10 @@ class _test2 extends State<test2> {
   String name = '';
   String publisher = '';
   String description = '';
+  String detailled_description = '';
+  String About_the_game = '';
+  List Screenshot = [];
+  List Movies = [];
   List<Map<String, dynamic>> game = [];
   List<dynamic> avis = [];
   late Future<List<dynamic>> _futureData;
@@ -42,13 +48,6 @@ class _test2 extends State<test2> {
 
   Widget contain(Widget arg) {
     return arg;
-  }
-
-  Widget Description(arg) {
-    return Text(
-      arg,
-      style: TextStyle(color: Colors.white, fontSize: 16),
-    );
   }
 
   Widget AvisReturned() {
@@ -71,14 +70,15 @@ class _test2 extends State<test2> {
                     children: [
                       Row(
                         children: [
-                          Image.network(community[i].avatar,width: 40),
-                      Padding(
-                        padding: const EdgeInsets.only(left: 8.0),
-                        child: Text(
-                          community[i].name,
-                          style: TextStyle(color: Colors.white, fontSize: 20),
-                        ),
-                      ),
+                          Image.network(community[i].avatar, width: 40),
+                          Padding(
+                            padding: const EdgeInsets.only(left: 8.0),
+                            child: Text(
+                              community[i].name,
+                              style:
+                                  TextStyle(color: Colors.white, fontSize: 20),
+                            ),
+                          ),
                         ],
                       ),
                       Row(
@@ -131,9 +131,160 @@ class _test2 extends State<test2> {
         dynamic_first_color = Color.fromARGB(184, 26, 32, 37);
         dynamic_second_color = Color.fromARGB(255, 88, 94, 214);
         pressedStatus = false;
-        variable = Description(description);
+        variable = Init_description();
       });
     }
+  }
+
+  Column  Init_description() {
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(bottom: 16.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              Text('Resumer',
+                  style: TextStyle(
+                      color: Color.fromARGB(255, 255, 255, 255),
+                      fontWeight: FontWeight.w900,
+                      fontStyle: FontStyle.italic,
+                      fontSize: 24.0)),
+            ],
+          ),
+        ),
+        Text(
+          description,
+          style: TextStyle(color: Colors.white, fontSize: 16),
+        ),
+
+        // 5 screenshots des jeux
+
+        Padding(
+          padding: const EdgeInsets.only(bottom: 16.0, top: 16.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              Text('Apercus',
+                  style: TextStyle(
+                      color: Color.fromARGB(255, 255, 255, 255),
+                      fontWeight: FontWeight.w900,
+                      fontStyle: FontStyle.italic,
+                      fontSize: 24.0)),
+            ],
+          ),
+        ),
+
+        Column(
+          children: [
+            Container(
+              height: 200,
+              child: Image.network(Screenshot[0]['path_thumbnail'].toString()),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(top: 8.0),
+              child: Container(
+                height: 200,
+                child:
+                    Image.network(Screenshot[1]['path_thumbnail'].toString()),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(top: 8.0),
+              child: Container(
+                height: 200,
+                child:
+                    Image.network(Screenshot[2]['path_thumbnail'].toString()),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(top: 8.0),
+              child: Container(
+                height: 200,
+                child:
+                    Image.network(Screenshot[3]['path_thumbnail'].toString()),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(top: 8.0),
+              child: Container(
+                height: 200,
+                child:
+                    Image.network(Screenshot[4]['path_thumbnail'].toString()),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(top: 8.0),
+              child: Container(
+                height: 200,
+                child: Chewie(
+                    controller: ChewieController(
+                  videoPlayerController: VideoPlayerController.network(
+                    Movies[0]['mp4']['480'].toString(),
+                  ),
+                  aspectRatio: 3 / 2,
+                  autoPlay: false,
+                  looping: false,
+                  allowFullScreen: true,
+                  allowMuting: true,
+                  allowPlaybackSpeedChanging: true,
+                  errorBuilder: (context, errorMessage) {
+                    return Center(
+                      child: Text(
+                        errorMessage,
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    );
+                  },
+                )),
+              ),
+            ),
+          ],
+        ),
+        Padding(
+          padding: const EdgeInsets.only(bottom: 16.0, top: 16.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              Text('A propos',
+                  style: TextStyle(
+                      color: Color.fromARGB(255, 255, 255, 255),
+                      fontWeight: FontWeight.w900,
+                      fontStyle: FontStyle.italic,
+                      fontSize: 24.0)),
+            ],
+          ),
+        ),
+
+        // description detaillé avec du code html formaté
+        Container(
+          width: MediaQuery.of(context).size.width,
+          child: Html(
+            data: detailled_description,
+            style: {
+              "*": Style(
+                color: Colors.white,
+                fontSize: FontSize(16), // Définir la couleur du texte en rouge
+              ),
+            },
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.only(bottom: 16.0, top: 16.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              Text('A propos',
+                  style: TextStyle(
+                      color: Color.fromARGB(255, 255, 255, 255),
+                      fontWeight: FontWeight.w900,
+                      fontStyle: FontStyle.italic,
+                      fontSize: 24.0)),
+            ],
+          ),
+        ),
+      ],
+    );
   }
 
   Future<void> fetchGames() async {
@@ -147,14 +298,20 @@ class _test2 extends State<test2> {
       final json = jsonDecode(response.body);
       final data = json[appid]['data'];
       setState(() {
-        if (data['publishers'] == null) {
+        if (data['publishers'] != []) {
+          Screenshot = data['screenshots'];
           name = data['name'];
-          publisher = data['publishers'];
+          publisher = data['publishers'][0];
           description = data['short_description'];
+          detailled_description = data['detailed_description'];
+          Movies = data['movies'];
         } else {
+          Screenshot = data['screenshots'];
           name = data['name'];
           publisher = 'unknown';
           description = data['short_description'];
+          detailled_description = data['detailed_description'];
+          Movies = data['movies'];
         }
       });
     } else {
@@ -205,187 +362,192 @@ class _test2 extends State<test2> {
   void initState() {
     super.initState();
     appid = widget.appID;
-    // game = fetchGames();
-    // appid = widget.appID;
-    
     fetchData();
     fetchGames();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        Positioned(
-          top: 0,
-          child: Column(
-            children: [
-              Stack(
+    return Scaffold(
+        appBar: AppBar(
+          title: Text('$name'),
+          backgroundColor: Color.fromARGB(254, 26, 32, 37),
+        ),
+        body: Stack(
+          children: [
+            Positioned(
+              top: 0,
+              child: Column(
                 children: [
-                  Container(
-                    width: MediaQuery.of(context).size.width,
-                    height: MediaQuery.of(context).size.height / 2,
-                    decoration: BoxDecoration(
-                      image: DecorationImage(
-                          image: NetworkImage(
-                              'https://steamcdn-a.akamaihd.net/steam/apps/$appid/header.jpg'),
-                          fit: BoxFit.cover),
-                    ),
-                  ),
-                  Positioned(
-                    top: 40,
-                    child: Material(
-                      color: Color.fromARGB(0, 255, 255, 255),
-                      child: IconButton(
-                        icon: Icon(
-                          Icons.arrow_back,
-                          size: 60,
-                          color: Color.fromARGB(255, 88, 94, 214),
-                        ),
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              Container(
-                  decoration: BoxDecoration(
-                    color: Color.fromARGB(255, 26, 32, 37),
-                  ),
-                  width: MediaQuery.of(context).size.width,
-                  height: (MediaQuery.of(context).size.height) / 2,
-                  child: Column(
+                  Stack(
                     children: [
-                      Padding(
-                        padding: const EdgeInsets.only(
-                          top: 80,
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            ElevatedButton(
-                              onPressed: onPressedLeft,
-                              child: Text(
-                                'DESCRIPTION',
-                                style: TextStyle(
-                                    color: Colors.white, fontSize: 20),
-                              ),
-                              style: ButtonStyle(
-                                minimumSize: MaterialStateProperty.all<Size>(
-                                    Size(180, 40)),
-                                shape: MaterialStateProperty.all<
-                                    RoundedRectangleBorder>(
-                                  RoundedRectangleBorder(
-                                    side: BorderSide(
-                                        color: Color.fromARGB(255, 88, 94, 214),
-                                        width: 2.0),
-                                  ),
-                                ),
-                                backgroundColor:
-                                    MaterialStateProperty.all<Color>(
-                                        dynamic_first_color),
-                              ),
-                            ),
-                            ElevatedButton(
-                                onPressed: onPressedRight,
-                                child: Text(
-                                  'AVIS',
-                                  style: TextStyle(
-                                      color: Colors.white, fontSize: 20),
-                                ),
-                                style: ButtonStyle(
-                                  minimumSize: MaterialStateProperty.all<Size>(
-                                      Size(180, 40)),
-                                  shape: MaterialStateProperty.all<
-                                      RoundedRectangleBorder>(
-                                    RoundedRectangleBorder(
-                                      side: BorderSide(
-                                          color:
-                                              Color.fromARGB(255, 88, 94, 214),
-                                          width: 2.0),
-                                    ),
-                                  ),
-                                  backgroundColor:
-                                      MaterialStateProperty.all<Color>(
-                                          dynamic_second_color),
-                                ))
-                          ],
+                      Container(
+                        width: MediaQuery.of(context).size.width,
+                        height: MediaQuery.of(context).size.height * 0.4,
+                        decoration: BoxDecoration(
+                          image: DecorationImage(
+                              image: NetworkImage(
+                                  'https://steamcdn-a.akamaihd.net/steam/apps/$appid/header.jpg'),
+                              fit: BoxFit.fill),
                         ),
                       ),
-                      Expanded(
-                        child: SingleChildScrollView(
-                          physics: BouncingScrollPhysics(),
-                          child: Padding(
-                            padding: const EdgeInsets.all(16.0),
-                            child: contain(
-                              enter ? Description(description) : variable,
+                    ],
+                  ),
+                  Container(
+                      decoration: BoxDecoration(
+                        color: Color.fromARGB(255, 26, 32, 37),
+                      ),
+                      width: MediaQuery.of(context).size.width,
+                      height: (MediaQuery.of(context).size.height) * 0.6,
+                      child: Column(
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.only(
+                              top: 90,
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                ElevatedButton(
+                                  onPressed: onPressedLeft,
+                                  child: Text(
+                                    'DESCRIPTION',
+                                    style: TextStyle(
+                                        color: Colors.white, fontSize: 20),
+                                  ),
+                                  style: ButtonStyle(
+                                    minimumSize:
+                                        MaterialStateProperty.all<Size>(
+                                            Size(180, 40)),
+                                    shape: MaterialStateProperty.all<
+                                        RoundedRectangleBorder>(
+                                      RoundedRectangleBorder(
+                                        side: BorderSide(
+                                            color: Color.fromARGB(
+                                                255, 88, 94, 214),
+                                            width: 2.0),
+                                      ),
+                                    ),
+                                    backgroundColor:
+                                        MaterialStateProperty.all<Color>(
+                                            dynamic_first_color),
+                                  ),
+                                ),
+                                ElevatedButton(
+                                    onPressed: onPressedRight,
+                                    child: Text(
+                                      'AVIS',
+                                      style: TextStyle(
+                                          color: Colors.white, fontSize: 20),
+                                    ),
+                                    style: ButtonStyle(
+                                      minimumSize:
+                                          MaterialStateProperty.all<Size>(
+                                              Size(180, 40)),
+                                      shape: MaterialStateProperty.all<
+                                          RoundedRectangleBorder>(
+                                        RoundedRectangleBorder(
+                                          side: BorderSide(
+                                              color: Color.fromARGB(
+                                                  255, 88, 94, 214),
+                                              width: 2.0),
+                                        ),
+                                      ),
+                                      backgroundColor:
+                                          MaterialStateProperty.all<Color>(
+                                              dynamic_second_color),
+                                    ))
+                              ],
                             ),
                           ),
-                        ),
-                      ),
-                    ],
-                  )),
-            ],
-          ),
-        ),
-        Positioned(
-            top: ((MediaQuery.of(context).size.height / 3) +
-                MediaQuery.of(context).size.height / 12),
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Container(
-                  decoration: BoxDecoration(
-                    color: Color.fromARGB(255, 30, 38, 44),
-                    borderRadius: BorderRadius.circular(10.0),
-                  ),
-                  width: MediaQuery.of(context).size.width * 0.96,
-                  height: MediaQuery.of(context).size.height / 6,
-                  child: Center(
-                      child: Row(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Image.network(
-                            'https://www.gamecash.fr/thumbnail-400-450/god-of-war-1-e117690.jpg'),
-                      ),
-                      Container(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Container(
-                                width: 190,
-                                child: Text(
-                                  name,
-                                  style: TextStyle(
-                                      fontSize: 14, color: Colors.white),
-                                  textAlign: TextAlign.left,
-                                ),
+                          Expanded(
+                            child: SingleChildScrollView(
+                              physics: BouncingScrollPhysics(),
+                              child: Padding(
+                                padding: const EdgeInsets.all(16.0),
+                                child: variable == ''?  Init_description() : variable,
                               ),
                             ),
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Text(
-                                publisher,
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  color: Colors.white,
-                                ),
-                                textAlign: TextAlign.start,
-                                softWrap: true,
+                          ),
+                        ],
+                      )),
+                ],
+              ),
+            ),
+            Positioned(
+                top: ((MediaQuery.of(context).size.height * 0.4 -
+                        MediaQuery.of(context).size.height / 6) +
+                    MediaQuery.of(context).size.height / 12),
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Container(
+                      decoration: BoxDecoration(
+                        image: DecorationImage(
+                            image: NetworkImage(
+                                'https://e0.pxfuel.com/wallpapers/914/317/desktop-wallpaper-black-youtube-banner-2048x1152-youtube.jpg'),
+                            fit: BoxFit.cover),
+                        color: Color.fromARGB(255, 30, 38, 44),
+                        borderRadius: BorderRadius.circular(10.0),
+                      ),
+                      width: MediaQuery.of(context).size.width * 0.96,
+                      height: MediaQuery.of(context).size.height / 6,
+                      child: Center(
+                          child: Row(
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Container(
+                              width: MediaQuery.of(context).size.width * 0.36,
+                              height: 105,
+                              decoration: BoxDecoration(
+                                image: DecorationImage(
+                                    image: NetworkImage(
+                                        'https://steamcdn-a.akamaihd.net/steam/apps/$appid/header.jpg'),
+                                    fit: BoxFit.fill),
+                                color: Color.fromARGB(255, 30, 38, 44),
+                                borderRadius: BorderRadius.circular(10),
                               ),
                             ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ))),
-            )),
-      ],
-    );
+                          ),
+                          Container(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Container(
+                                    width: MediaQuery.of(context).size.width *
+                                        0.46,
+                                    child: Text(
+                                      name,
+                                      maxLines: 2,
+                                      style: TextStyle(
+                                          fontSize: 14, color: Colors.white),
+                                      textAlign: TextAlign.left,
+                                    ),
+                                  ),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Text(
+                                    publisher,
+                                    style: TextStyle(
+                                      color: Color.fromARGB(255, 227, 104, 22),
+                                      fontWeight: FontWeight.w900,
+                                      fontSize: 15,
+                                    ),
+                                    textAlign: TextAlign.start,
+                                    softWrap: true,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ))),
+                )),
+          ],
+        ));
   }
 }
