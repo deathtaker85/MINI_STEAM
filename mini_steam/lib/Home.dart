@@ -1,20 +1,16 @@
-import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:dio/dio.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:mini_steam/Connexion.dart';
-import 'package:mini_steam/Paramettres.dart';
-import 'package:mini_steam/test2.dart';
-import 'package:uuid/uuid.dart';
-import 'global.dart';
-import 'likes_video.dart';
-
-// **************************************************************//
+import 'DetailedGame.dart';
+import 'Favoris.dart';
 import 'package:carousel_slider/carousel_slider.dart';
-import 'package:flutter/material.dart';
 
-class HomePage extends StatelessWidget {
+
+//  on fait defiler trois jeux dans un carousel
+// *************************************Debut du carousel*************************************
+class Carousel extends StatelessWidget {
   final List<Map<String, String>> games = [
     {
       'title': 'Titan Fall 2 Ultimate Edition',
@@ -178,101 +174,68 @@ class GameCard extends StatelessWidget {
   }
 }
 
-// *********************************************************************//
-class search extends StatefulWidget {
+// ************************************************fin du carousel***************************
+
+
+// Notre Acceuil commence ici, il s'agit de la class qui va contenir tout le code de notre page d'acceuil
+
+// *************************************Debut de la class Acceuil*************************************
+
+class Acceuil extends StatefulWidget {
   @override
-  _search createState() => _search();
+  _AcceuilState createState() => _AcceuilState();
 }
 
-class _search extends State<search> {
-  final search_controller = TextEditingController();
-
-  @override
-  Widget build(BuildContext context) {
-    return Form(
-        child: Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: TextField(
-        style: TextStyle(color: Colors.white),
-        decoration: InputDecoration(
-          suffixIcon: Icon(Icons.search_outlined),
-          suffixIconColor: Color.fromARGB(255, 88, 94, 214),
-          filled: true,
-          fillColor: Color.fromARGB(255, 30, 38, 44),
-          border: OutlineInputBorder(borderSide: BorderSide.none),
-          hintText: 'Rechercher un jeu...',
-          hintStyle: TextStyle(color: Colors.white),
-        ),
-        controller: search_controller,
-      ),
-    ));
-  }
-}
-
-// *************************************************************************//
-
-class MApp extends StatefulWidget {
-  @override
-  _MyAppState createState() => _MyAppState();
-}
-
-class _MyAppState extends State<MApp> {
-  List<dynamic> games = [];
-  bool testeur = true;
-  final Map<int, String> _gameDescriptionCache = {};
-  TextEditingController _searchController = TextEditingController();
+class _AcceuilState extends State<Acceuil> {
+  final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
   var currentUser = FirebaseAuth.instance.currentUser;
-  List Favorite = [];
+  List favorite = [];
   bool isLoading = true;
   String description = '';
-  List actuals_games = [];
+  List actualsGames = [];
+  List<dynamic> games = [];
 
+  // on recupere les jeux mis par l'utilisateur actuellement connecté depuis firebase
   void getInfoUser() async {
     final userDocRef =
         FirebaseFirestore.instance.collection('Users').doc(currentUser?.uid);
-    DocumentSnapshot<Map<String, dynamic>> test = await userDocRef.get();
+    DocumentSnapshot<Map<String, dynamic>> myFavorite = await userDocRef.get();
+    List<dynamic> favoriteList = [];
+    for (var i = 0; myFavorite['Favorite'].length > i; i++) {
+      favoriteList.add(myFavorite['Favorite'][i]);
+    }
     setState(() {
-      for (var i = 0; test['Favorite'].length > i; i++) {
-        Favorite.add(test['Favorite'][i]);
-      }
+      favorite = favoriteList;
     });
   }
 
-  @override
-  void initState() {
-    super.initState();
-    fetchGames();
-    fetchactualsGames();
-    getInfoUser();
-  }
-
+// on recupere les jeux depuis l'api de steam, cette api retourne plus de jeux, on l'utilise pour la partie recherche
   Future<void> fetchGames() async {
-    final response = await http.get(
-      Uri.parse('https://api.steampowered.com/ISteamApps/GetAppList/v2/'),
+    final response = await Dio().get(
+      'https://api.steampowered.com/ISteamApps/GetAppList/v2/',
     );
 
     if (response.statusCode == 200) {
-      final json = jsonDecode(response.body);
+      final json = response.data;
       setState(() {
         games = json['applist']['apps'];
-        isLoading = false;
       });
     } else {
       throw Exception('Failed to load games');
     }
   }
 
+// on recupere les jeux les plus joués depuis l'api de steam
   Future<void> fetchactualsGames() async {
-    final response = await http.get(
-      Uri.parse(
-          'https://api.steampowered.com/ISteamChartsService/GetMostPlayedGames/v1/?'),
+    final response = await Dio().get(
+      'https://api.steampowered.com/ISteamChartsService/GetMostPlayedGames/v1/?',
     );
 
     if (response.statusCode == 200) {
-      final json = jsonDecode(response.body);
+      final json = response.data;
       setState(() {
-        actuals_games = json['response']['ranks'];
+        actualsGames = json['response']['ranks'];
         isLoading = false;
       });
     } else {
@@ -280,44 +243,44 @@ class _MyAppState extends State<MApp> {
     }
   }
 
-  // Future<String> fetchGameDescription(int appId) async {
-  //   final response = await http.get(
-  //     Uri.parse('https://store.steampowered.com/api/appdetails?appids=$appId'),
-  //   );
-
-  //   if (response.statusCode == 200) {
-  //     final json = jsonDecode(response.body);
-  //     final data = json['$appId']['data']['developers'][0];
-  //     setState(() {
-  //       isLoading = false;
-  //     });
-  //     return data['short_description'];
-  //   } else {
-  //     throw Exception('Failed to load game description');
-  //   }
-  // }
-
+// ici on récupère les informations des jeux, leur details, quelques screenshots, leur description, leur prix, leur editeur, etc...
   Future<Map<String, dynamic>> _fetchGameDescription(int appId) async {
-    final response = await http.get(Uri.parse(
-        'https://store.steampowered.com/api/appdetails?appids=$appId&cc=fr'));
-
+    final response = await Dio().get(
+        'https://store.steampowered.com/api/appdetails?appids=$appId&cc=fr');
     if (response.statusCode == 200) {
-      final json = jsonDecode(response.body);
+      final json = response.data;
       final newsItems = json['$appId']['data'];
-      final list = {'name': '', 'publisher': '', 'price': ''};
+      final list = {
+        'name': '',
+        'publisher': '',
+        'price_overview': '',
+        'description': '',
+        'detailed_description': '',
+        'screenshots': const []
+      };
       if (newsItems.isNotEmpty) {
         list['name'] = newsItems['name'];
         list['publisher'] = newsItems['publishers'][0];
-        list['price'] = newsItems['price_overview']['final_formatted'].isEmpty
-            ? 'Gratuit'
-            : newsItems['price_overview']['final_formatted'];
-        // final gameDescription = list;
-        // // On stocke la description dans le cache
-        // _gameDescriptionCache[appId] = list;
+        list['price_overview'] =
+            newsItems['price_overview']['final_formatted'].isEmpty
+                ? 'Gratuit'
+                : newsItems['price_overview']['final_formatted'];
+        list['description'] = newsItems['short_description'];
+        list['detailed_description'] = newsItems['detailed_description'];
+        list['screenshots'] = newsItems['screenshots'];
         return list;
       }
     }
-    throw Exception('Failed to load game description');
+    throw Exception('Failed to load games');
+  }
+
+// Dans le initState on appelle les fonctions qui vont nous permettre de récupérer les jeux et les informations des jeux à la creation de la page
+  @override
+  void initState() {
+    super.initState();
+    fetchactualsGames();
+    fetchGames();
+    getInfoUser();
   }
 
   @override
@@ -362,6 +325,7 @@ class _MyAppState extends State<MApp> {
                   child: Stack(
                     alignment: Alignment.centerRight,
                     children: [
+                      // ici on a le textfield qui va nous permettre de faire la recherche
                       TextField(
                         style: TextStyle(color: Colors.white),
                         controller: _searchController,
@@ -372,15 +336,19 @@ class _MyAppState extends State<MApp> {
                         onSubmitted: (value) {
                           setState(() {
                             _searchQuery = value;
+                            isLoading = true;
                           });
                           List<dynamic> object = [];
+                          // on parcours la liste des jeux et on ajoute les jeux qui correspondent à la recherche dans une liste
                           for (var i = 0; i < games.length; i++) {
                             if (games[i]['name']
+                                .toString()
                                 .toLowerCase()
                                 .contains(value.toLowerCase())) {
                               object.add(games[i]);
                             }
                           }
+                          // on affiche les jeux qui correspondent à la recherche
                           Navigator.push(context, MaterialPageRoute<void>(
                               builder: (BuildContext context) {
                             return Scaffold(
@@ -390,24 +358,80 @@ class _MyAppState extends State<MApp> {
                                 backgroundColor:
                                     Color.fromARGB(254, 26, 32, 37),
                               ),
-                              body: ListView.builder(
-                                  itemCount: object.length,
-                                  itemBuilder: (BuildContext context, index) {
-                                    return Column(
-                                      children: [
-                                        Item(context,object[index]['appid'].toString(),
-                                            description: object[index]
-                                                    ['steam_appid']
-                                                .toString(),
-                                            url: object[index]['appid'],
-                                            name: object[index]['name'],
-                                            prix: '19,99 €',
-                                            dimension: MediaQuery.of(context)
-                                                .size
-                                                .width)
-                                      ],
-                                    );
-                                  }),
+                              // ici on affiche les jeux qui correspondent à la recherche, s'il n'y a pas de résultat on affiche un message
+                              body: object.isEmpty
+                                  ? Center(
+                                      child: Text(
+                                        'Aucun résultat trouvé',
+                                        style: TextStyle(color: Colors.white),
+                                      ),
+                                    )
+                                    
+                                  : ListView.builder(
+                                      shrinkWrap: true,
+                                      itemCount: object.length,
+                                      itemBuilder:
+                                          (BuildContext context, int index) {
+                                        Future<Map<String, dynamic>>?
+                                            descriptionFuture;
+                                        final game = object[index];
+
+                                        descriptionFuture =
+                                            _fetchGameDescription(
+                                                game['appid']);
+                                        return FutureBuilder(
+                                            future: descriptionFuture,
+                                            builder: (BuildContext context,
+                                                AsyncSnapshot snapshot) {
+                                              if (snapshot.connectionState ==
+                                                  ConnectionState.waiting) {
+                                                    // on affiche un loader tant que les informations du jeu ne sont pas chargées
+                                                return Center(
+                                                    child:
+                                                        CircularProgressIndicator(
+                                                  color: Colors.white,
+                                                ));
+                                              } else if (snapshot.hasError) {
+                                                return Container();
+                                              } else {
+                                                // on affiche les informations du jeu
+                                                final descriptionMap =
+                                                    snapshot.data
+                                                        as Map<String, dynamic>;
+                                                final name =
+                                                    descriptionMap['name'];
+                                                final publisher =
+                                                    descriptionMap['publisher'];
+                                                final price = descriptionMap[
+                                                    'price_overview'];
+                                                final description =
+                                                    descriptionMap[
+                                                        'description'];
+                                                final detailled_description =
+                                                    descriptionMap[
+                                                        'detailed_description'];
+                                                final screenshots =
+                                                    descriptionMap[
+                                                        'screenshots'];
+                                                        // on retourne un item qui va nous permettre d'afficher les informations du jeu
+                                                return Item(
+                                                    context, game['appid'],
+                                                    publisher: publisher,
+                                                    url: game['appid'],
+                                                    description: description,
+                                                    detailledDescription:
+                                                        detailled_description,
+                                                    screenshots: screenshots,
+                                                    name: name,
+                                                    prix: price,
+                                                    dimension:
+                                                        MediaQuery.of(context)
+                                                            .size
+                                                            .width);
+                                              }
+                                            });
+                                      },
+                                    ),
                               backgroundColor: Color.fromARGB(254, 26, 32, 37),
                             );
                           }));
@@ -423,27 +447,57 @@ class _MyAppState extends State<MApp> {
                     ],
                   )),
             ),
-            HomePage(),
+            // on appelle le carrousel
+            Carousel(),
+            // on affiche les jeux les plus populaires
             Padding(
               padding: const EdgeInsets.only(top: 25, bottom: 10, left: 10),
               child: Row(
                 children: [
-                  Text(
-                    'les plus populaires',
-                    style: TextStyle(fontSize: 20, color: Colors.white),
-                  )
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Text(
+                        'les plus populaires',
+                        style: TextStyle(fontSize: 20, color: Colors.white),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(left: 30.0),
+                        child: ElevatedButton(
+                          onPressed: () {
+                            fetchactualsGames();
+                          },
+                          child: Text('Actualiser',
+                              style: TextStyle(color: Colors.white)),
+                        ),
+                      )
+                    ],
+                  ),
                 ],
               ),
             ),
+            //
             isLoading
-                ? Center(child: CircularProgressIndicator())
+                ? Center(
+                    child: Column(
+                    children: [
+                      Center(
+                          child: CircularProgressIndicator(
+                        color: Colors.white,
+                      )),
+                      Text(
+                        'Chargement des jeux...',
+                        style: TextStyle(color: Colors.white),
+                      )
+                    ],
+                  ))
                 : ListView.builder(
                     physics: NeverScrollableScrollPhysics(),
                     shrinkWrap: true,
-                    itemCount: actuals_games.length,
+                    itemCount: actualsGames.length,
                     itemBuilder: (BuildContext context, int index) {
                       Future<Map<String, dynamic>>? descriptionFuture;
-                      final game = actuals_games[index];
+                      final game = actualsGames[index];
 
                       descriptionFuture = _fetchGameDescription(game['appid']);
 
@@ -453,36 +507,29 @@ class _MyAppState extends State<MApp> {
                               (BuildContext context, AsyncSnapshot snapshot) {
                             if (snapshot.connectionState ==
                                 ConnectionState.waiting) {
-                              return Center(child: CircularProgressIndicator());
+                              return Container();
                             } else if (snapshot.hasError) {
-                              print(Text('Error: ${snapshot.error}'));
                               return Container();
                             } else {
                               final descriptionMap =
                                   snapshot.data as Map<String, dynamic>;
                               final name = descriptionMap['name'];
                               final publisher = descriptionMap['publisher'];
-                              final price = descriptionMap['price'];
+                              final price = descriptionMap['price_overview'];
+                              final description = descriptionMap['description'];
+                              final detailed_description =
+                                  descriptionMap['detailed_description'];
+                              final screenshots = descriptionMap['screenshots'];
 
-                              return GestureDetector(
-                                onTap: () {
-                                  Navigator.push(context,
-                                      MaterialPageRoute<void>(
-                                          builder: (BuildContext context) {
-                                    return test2(
-                                        appID: game['appid'].toString());
-                                  }));
-                                },
-                                child: snapshot.hasError
-                                    ? Container()
-                                    : Item(context,game['appid'].toString(),
-                                        description: publisher,
-                                        url: game['appid'],
-                                        name: name,
-                                        prix: price,
-                                        dimension:
-                                            MediaQuery.of(context).size.width),
-                              );
+                              return Item(context, game['appid'],
+                                  publisher: publisher,
+                                  url: game['appid'],
+                                  description: description,
+                                  detailledDescription: detailed_description,
+                                  screenshots: screenshots,
+                                  name: name,
+                                  prix: price,
+                                  dimension: MediaQuery.of(context).size.width);
                             }
                           });
                     },
@@ -490,6 +537,8 @@ class _MyAppState extends State<MApp> {
           ],
         ),
       ),
+      // on affiche le menu en bas de l'écran
+      //il nous permettra de naviguer plus facilement entre les différentes pages
       bottomNavigationBar: BottomNavigationBar(items: [
         BottomNavigationBarItem(
             backgroundColor: Color.fromARGB(255, 30, 38, 44),
@@ -540,21 +589,18 @@ class _MyAppState extends State<MApp> {
   }
 }
 
-class item {
-  Widget Item = Container();
-  bool isFavorite = false;
-  String id = '';
-
-  item({required this.Item, this.isFavorite = false, required id}) {}
-}
-
-Widget Item(BuildContext context,String appID,
+// on crée une fonction qui va nous permettre d'afficher les informations du jeu
+Widget Item(BuildContext context, int appID,
     {dimension: '',
     name: '',
-    description: '',
+    publisher: '',
     prix: '',
-    url: ''}) {
+    description: '',
+    url: '',
+    String detailledDescription: '',
+    dynamic screenshots: const []}) {
   var currentUser = FirebaseAuth.instance.currentUser;
+
   return Padding(
     padding: const EdgeInsets.all(7.5),
     child: Container(
@@ -643,7 +689,7 @@ Widget Item(BuildContext context,String appID,
                                             )),
                                         Padding(
                                           padding: const EdgeInsets.all(8.0),
-                                          child: Text(description,
+                                          child: Text(publisher,
                                               // '2K games',
                                               softWrap: true,
                                               maxLines: 2,
@@ -670,50 +716,7 @@ Widget Item(BuildContext context,String appID,
                                         ),
                                       ],
                                     ),
-                                  )
-                                  // IconButton(
-                                  //   onPressed: () {
-                                  // final docRef = FirebaseFirestore
-                                  //     .instance
-                                  //     .collection('Users')
-                                  //     .doc(currentUser?.uid);
-                                  // print(currentUser?.uid);
-                                  // final newElement = {
-                                  //   'name': name,
-                                  //   'price': description,
-                                  //   'description': prix,
-                                  //   'image': url,
-                                  // };
-
-                                  // docRef.update({
-                                  //   'Favorite': FieldValue.arrayUnion(
-                                  //       [newElement])
-                                  // });
-                                  // bool test = true;
-                                  // for (var i = 0;
-                                  //     i < globalList.length;
-                                  //     i++) {
-                                  //   if (globalList[i].id == id) {
-                                  //     test = true;
-                                  //     break; // Sortir de la boucle si on trouve un élément identique
-                                  //   }
-                                  // }
-
-                                  // if (test) {
-                                  //   globalList.add(item(
-                                  //       Item: Item(id,
-                                  //           dimension: dimension,
-                                  //           name: name,
-                                  //           description: description,
-                                  //           prix: prix,
-                                  //           url: url),
-                                  //       id: id));
-                                  // }
-                                  //   },
-                                  //   icon: Icon(Icons.favorite),
-                                  // ),
-
-                                  // prix
+                                  ),
                                 ],
                               ),
                             ),
@@ -731,13 +734,19 @@ Widget Item(BuildContext context,String appID,
                         Color.fromARGB(255, 88, 94, 214)),
                   ),
                   onPressed: () {
-                    Navigator.push(context,
-                                      MaterialPageRoute<void>(
-                                          builder: (BuildContext context) {
-                                    return test2(
-                                        appID: appID);
-                                  }));
-                                },
+                    Navigator.push(context, MaterialPageRoute<void>(
+                        builder: (BuildContext context) {
+                          // on retourne les informations du jeu dans une nouvelle page pour voir les détails
+                      return GameDetails(
+                          appID: appID,
+                          name: name,
+                          publisher: publisher,
+                          description: description,
+                          price: prix,
+                          detailledDescription: detailledDescription,
+                          screenshots: screenshots);
+                    }));
+                  },
                   child: Container(
                       width: 90,
                       child: Text('En savoir plus',

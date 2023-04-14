@@ -2,12 +2,12 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import "package:flutter/material.dart";
 import 'package:firebase_auth/firebase_auth.dart';
 
-class paramettres extends StatefulWidget {
+class Parametres extends StatefulWidget {
   @override
-  _paramettresState createState() => _paramettresState();
+  _parametresState createState() => _parametresState();
 }
 
-class _paramettresState extends State<paramettres> {
+class _parametresState extends State<Parametres> {
   FirebaseAuth auth = FirebaseAuth.instance;
   var currentUser = FirebaseAuth.instance.currentUser;
   String Email = 'inconnue';
@@ -90,49 +90,73 @@ class _paramettresState extends State<paramettres> {
               ),
             ),
           ),
-          currentUser != null ? Container(
-            height: MediaQuery.of(context).size.height * 5 / 6,
+          Container(
             width: MediaQuery.of(context).size.width,
-            child: Center(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+            height: MediaQuery.of(context).size.height * 5/6,
+            child:Center(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Se deconnecter',
-                      style: TextStyle(color: Colors.white, fontSize: 25)),
-                  IconButton(
-                    icon: Icon(
-                      Icons.logout,
-                      color: Colors.white,
-                    ),
-                    onPressed: () {
-                      signOut();
-                      Navigator.pushNamed(context,'/Acceuil');
-                    },
+                  // options des parametres de l'application
+                  Padding(
+                    padding: const EdgeInsets.only(left:8.0,top: 25),
+                    child: Text('Confidentialité',style: TextStyle(color: Colors.white, fontSize: 25)),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(left:8.0,top: 25),
+                    child: Text('Aide',style: TextStyle(color: Colors.white, fontSize: 25)),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(left:8.0,top: 25),
+                    child: Text('A propos',style: TextStyle(color: Colors.white, fontSize: 25)),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(left:8.0,top: 25),
+                    child: Text('Contact',style: TextStyle(color: Colors.white, fontSize: 25)),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(left:8.0,top: 25),
+                    child: Text('personnaliser',style: TextStyle(color: Colors.white, fontSize: 25)),
+                  ),
+                  currentUser != null ? Padding(
+                    padding: const EdgeInsets.all(25.0),
+                    child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      IconButton(
+                        icon: Icon(
+                          size:40,
+                          Icons.logout,
+                          color: Color.fromARGB(255, 204, 10, 10),
+                        ),
+                        onPressed: () {
+                          signOut();
+                          Navigator.pushNamed(context,'/Acceuil');
+                        },
+                      ),
+                    ],
+                                  ),
+                  ):Padding(
+                    padding: const EdgeInsets.all(25.0),
+                    child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      IconButton(
+                        icon: Icon(
+                          size:40,
+                          Icons.login,
+                          color: Colors.white,
+                        ),
+                        onPressed: () {
+                          Navigator.pushNamed(context, '/connexion');
+                        },
+                      ),
+                    ],
+                                  ),
                   ),
                 ],
               ),
-            ),
-          ):Container(
-            height: MediaQuery.of(context).size.height * 5 / 6,
-            width: MediaQuery.of(context).size.width,
-            child: Center(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text('Se connecter',
-                      style: TextStyle(color: Colors.white, fontSize: 25)),
-                  IconButton(
-                    icon: Icon(
-                      Icons.login,
-                      color: Colors.white,
-                    ),
-                    onPressed: () {
-                      Navigator.pushNamed(context, '/connexion');
-                    },
-                  ),
-                ],
-              ),
-            ),
+            )
           )
         ],
       )),

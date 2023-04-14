@@ -1,10 +1,31 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter_html/flutter_html.dart';
-import 'package:mini_steam/test.dart';
-import 'package:video_player/video_player.dart';
-import 'package:chewie/chewie.dart';
+
+class GameDetails extends StatefulWidget {
+  final int appID;
+  String detailledDescription = '';
+  dynamic screenshots = [];
+  String publisher = '';
+  String description = '';
+  String price = '';
+  String name = '';
+
+  GameDetails(
+      {required this.appID,
+      required this.publisher,
+      required this.description,
+      required this.price,
+      required this.detailledDescription,
+      required this.screenshots,
+      required this.name});
+
+  @override
+  _GameDetailsState createState() => _GameDetailsState();
+}
 
 class User {
   String name = '';
@@ -16,43 +37,29 @@ class User {
   }
 }
 
-class test2 extends StatefulWidget {
-  final String appID;
-
-  test2({required this.appID});
-
-  @override
-  _test2 createState() => _test2();
-}
-
-class _test2 extends State<test2> {
+class _GameDetailsState extends State<GameDetails> {
   // late String appid;
   Color dynamic_second_color = Color.fromARGB(255, 88, 94, 214);
   Color dynamic_first_color = Color.fromARGB(184, 26, 32, 37);
+  var currentUser = FirebaseAuth.instance.currentUser;
   bool pressedStatus = false;
-  String appid = '';
+  int appid = 0;
+  Map<String, String> Elements = {};
   String name = '';
   String publisher = '';
   String description = '';
-  String detailled_description = '';
-  String About_the_game = '';
-  List Screenshot = [];
-  List Movies = [];
+  String price = '';
+  String DetailedDescription = '';
+  dynamic Screenshot = [];
   List<Map<String, dynamic>> game = [];
+  bool EndLoading = false;
   List<dynamic> avis = [];
-  late Future<List<dynamic>> _futureData;
-  bool enter = true;
   List<User> community = <User>[];
-
+  bool variableIsSet = false;
   Widget variable = Text('');
-
-  Widget contain(Widget arg) {
-    return arg;
-  }
 
   Widget AvisReturned() {
     List<Widget> widgets = [];
-
     for (int i = 0; i < community.length; i++) {
       widgets.add(
         Padding(
@@ -72,13 +79,16 @@ class _test2 extends State<test2> {
                         children: [
                           Image.network(community[i].avatar, width: 40),
                           Padding(
-                            padding: const EdgeInsets.only(left: 8.0),
-                            child: Text(
-                              community[i].name,
-                              style:
-                                  TextStyle(color: Colors.white, fontSize: 20),
-                            ),
-                          ),
+                              padding: const EdgeInsets.only(left: 8.0),
+                              child: Container(
+                                width: MediaQuery.of(context).size.width * 0.35,
+                                child: Text(
+                                  community[i].name,
+                                  maxLines: 2,
+                                  style: TextStyle(
+                                      color: Colors.white, fontSize: 20),
+                                ),
+                              )),
                         ],
                       ),
                       Row(
@@ -110,17 +120,20 @@ class _test2 extends State<test2> {
       );
     }
 
-    return Column(children: widgets);
+    return Column(
+      children: widgets,
+    );
   }
 
   void onPressedRight() {
     if (!pressedStatus) {
       setState(() {
-        enter = false;
+        // enter = false;
         dynamic_first_color = Color.fromARGB(255, 88, 94, 214);
         dynamic_second_color = Color.fromARGB(184, 26, 32, 37);
         pressedStatus = true;
         variable = AvisReturned();
+        variableIsSet = true;
       });
     }
   }
@@ -131,12 +144,24 @@ class _test2 extends State<test2> {
         dynamic_first_color = Color.fromARGB(184, 26, 32, 37);
         dynamic_second_color = Color.fromARGB(255, 88, 94, 214);
         pressedStatus = false;
-        variable = Init_description();
+        variable = InitDescription();
+        variableIsSet = true;
       });
     }
   }
 
-  Column  Init_description() {
+  Widget InitDescription() {
+    while (DetailedDescription == '') {
+      return Column(
+        children: [
+          Center(
+              child: CircularProgressIndicator(
+            color: Colors.white,
+          )),
+        ],
+      );
+    }
+
     return Column(
       children: [
         Padding(
@@ -178,66 +203,36 @@ class _test2 extends State<test2> {
         Column(
           children: [
             Container(
-              height: 200,
-              child: Image.network(Screenshot[0]['path_thumbnail'].toString()),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(top: 8.0),
-              child: Container(
                 height: 200,
                 child:
-                    Image.network(Screenshot[1]['path_thumbnail'].toString()),
-              ),
+                    Image.network(Screenshot[0]['path_thumbnail'].toString())),
+            Padding(
+              padding: const EdgeInsets.only(top: 8.0),
+              child: Container(
+                  height: 200,
+                  child: Image.network(
+                      Screenshot[0]['path_thumbnail'].toString())),
             ),
             Padding(
               padding: const EdgeInsets.only(top: 8.0),
               child: Container(
-                height: 200,
-                child:
-                    Image.network(Screenshot[2]['path_thumbnail'].toString()),
-              ),
+                  height: 200,
+                  child: Image.network(
+                      Screenshot[1]['path_thumbnail'].toString())),
             ),
             Padding(
               padding: const EdgeInsets.only(top: 8.0),
               child: Container(
-                height: 200,
-                child:
-                    Image.network(Screenshot[3]['path_thumbnail'].toString()),
-              ),
+                  height: 200,
+                  child: Image.network(
+                      Screenshot[2]['path_thumbnail'].toString())),
             ),
             Padding(
               padding: const EdgeInsets.only(top: 8.0),
               child: Container(
-                height: 200,
-                child:
-                    Image.network(Screenshot[4]['path_thumbnail'].toString()),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(top: 8.0),
-              child: Container(
-                height: 200,
-                child: Chewie(
-                    controller: ChewieController(
-                  videoPlayerController: VideoPlayerController.network(
-                    Movies[0]['mp4']['480'].toString(),
-                  ),
-                  aspectRatio: 3 / 2,
-                  autoPlay: false,
-                  looping: false,
-                  allowFullScreen: true,
-                  allowMuting: true,
-                  allowPlaybackSpeedChanging: true,
-                  errorBuilder: (context, errorMessage) {
-                    return Center(
-                      child: Text(
-                        errorMessage,
-                        style: TextStyle(color: Colors.white),
-                      ),
-                    );
-                  },
-                )),
-              ),
+                  height: 200,
+                  child: Image.network(
+                      Screenshot[3]['path_thumbnail'].toString())),
             ),
           ],
         ),
@@ -260,7 +255,7 @@ class _test2 extends State<test2> {
         Container(
           width: MediaQuery.of(context).size.width,
           child: Html(
-            data: detailled_description,
+            data: DetailedDescription,
             style: {
               "*": Style(
                 color: Colors.white,
@@ -269,71 +264,28 @@ class _test2 extends State<test2> {
             },
           ),
         ),
-        Padding(
-          padding: const EdgeInsets.only(bottom: 16.0, top: 16.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              Text('A propos',
-                  style: TextStyle(
-                      color: Color.fromARGB(255, 255, 255, 255),
-                      fontWeight: FontWeight.w900,
-                      fontStyle: FontStyle.italic,
-                      fontSize: 24.0)),
-            ],
-          ),
-        ),
       ],
     );
   }
 
-  Future<void> fetchGames() async {
-    String appid = widget.appID;
-    final response = await http.get(
-      Uri.parse(
-          'https://store.steampowered.com/api/appdetails?appids=$appid&cc=FR&l=fr&v=1'),
-    );
 
-    if (response.statusCode == 200) {
-      final json = jsonDecode(response.body);
-      final data = json[appid]['data'];
-      setState(() {
-        if (data['publishers'] != []) {
-          Screenshot = data['screenshots'];
-          name = data['name'];
-          publisher = data['publishers'][0];
-          description = data['short_description'];
-          detailled_description = data['detailed_description'];
-          Movies = data['movies'];
-        } else {
-          Screenshot = data['screenshots'];
-          name = data['name'];
-          publisher = 'unknown';
-          description = data['short_description'];
-          detailled_description = data['detailed_description'];
-          Movies = data['movies'];
-        }
-      });
-    } else {
-      throw Exception('Failed to load games');
-    }
-  }
-
+  // fonction qui permet de recuperer les avis des joueurs
   Future<void> fetchData() async {
-    String appid = widget.appID;
-    final response = await http.get(Uri.parse(
-        'https://store.steampowered.com/appreviews/$appid?json=1&language=all&filter=recent_positive'));
+    int appid = widget.appID;
+    final response = await http.get(
+        Uri.parse('https://store.steampowered.com/appreviews/$appid?json=1'));
     if (response.statusCode == 200) {
       final jsonData = jsonDecode(response.body);
       setState(() {
         avis = jsonData['reviews'];
       });
+      takeCommunity();
     } else {
       throw Exception('Failed to load data');
     }
-    takeCommunity();
   }
 
+  // fonction qui permet de recuperer les informations des joueurs
   Future<void> fetchCommunity(arg) async {
     var name = '';
     var avatar = '';
@@ -352,24 +304,74 @@ class _test2 extends State<test2> {
     }
   }
 
+  // fonction qui permet de recuperer les informations des joueurs
   void takeCommunity() {
     for (var i = 0; i < avis.length; i++) {
       fetchCommunity(avis[i]['author']['steamid']);
     }
   }
 
+  
   @override
   void initState() {
     super.initState();
     appid = widget.appID;
+    name = widget.name;
+    publisher = widget.publisher;
+    description = widget.description;
+    DetailedDescription = widget.detailledDescription;
+    price = widget.price;
+    Screenshot = widget.screenshots;
     fetchData();
-    fetchGames();
   }
+
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
+          actions: [
+            IconButton(
+              // fonction qui permet d'ajouter un jeu dans la liste de favoris à firestore 
+              onPressed: () {
+                if (currentUser != null) {
+                  final docRef = FirebaseFirestore.instance
+                      .collection('Users')
+                      .doc(currentUser?.uid);
+                  final newElement = {
+                    'appid': appid,
+                    'name': name,
+                    'publisher': publisher,
+                    'description': description,
+                    'price': price,
+                    'detailled_description': DetailedDescription,
+                    'Screenshot': Screenshot,
+                  };
+                  docRef.update({
+                    'Favorite': FieldValue.arrayUnion([newElement])
+                  });
+                } else {
+                  showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          title: Text('Vous devez être connecté pour ajouter un jeu'),
+                          actions: [
+                            TextButton(
+                              child: Text('OK'),
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              },
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                }
+              },
+              icon: Icon(Icons.favorite),
+            ),
+          ],
           title: Text('$name'),
           backgroundColor: Color.fromARGB(254, 26, 32, 37),
         ),
@@ -464,9 +466,10 @@ class _test2 extends State<test2> {
                             child: SingleChildScrollView(
                               physics: BouncingScrollPhysics(),
                               child: Padding(
-                                padding: const EdgeInsets.all(16.0),
-                                child: variable == ''?  Init_description() : variable,
-                              ),
+                                  padding: const EdgeInsets.all(16.0),
+                                  child: variableIsSet
+                                      ? variable
+                                      : InitDescription()),
                             ),
                           ),
                         ],
