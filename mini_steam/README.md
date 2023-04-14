@@ -1,16 +1,4 @@
-# mini_steam
+# a propos du projet
+Nous avons essayer au maximum de respecter les consignes, le back est assuré, les erreurs et les chargements aussi, nous avons rajouté quelques éléments en plus sur le front, mais on espere ne pas etre pénalisé pour cela vue que le font demandé est fait. Pour les testes de l'application de votre coté utiliser plutot une connexion mobile et non wifi, ce que nous avons fait la connexion wifi ne tire le meuilleur de l'application (ou est ce juste notre point d'accès qui est lent)
 
-A new Flutter project.
-
-## Getting Started
-
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+Nous nous excusons d'avoir remis le projet en retard, nous avions vue a rendre le 14, mais apparement c'etait le 13 avant minuit, apres avoir constaté cela nous avons fait au plus vite pour le rendre le 14.
