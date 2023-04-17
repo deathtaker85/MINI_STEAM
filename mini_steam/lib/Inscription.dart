@@ -68,15 +68,7 @@ class _Inscription extends State<Inscription> {
         'username': username,
         'email': email,
         'password': password,
-        'Favorite': [
-          {
-            'name': '',
-            'publisher': '',
-            'price': '',
-            'image':
-                'https://media.licdn.com/dms/image/D4E03AQH4l-DMUL7lEw/profile-displayphoto-shrink_400_400/0/1666952859336?e=1684972800&v=beta&t=w6te11xGikntWDIeC0Ugca8bcTEL2C-4WFh6h2fIG9o'
-          }
-        ]
+        'Favorite': []
       });
       
       Navigator.push(context, MaterialPageRoute(builder: (context) {
